@@ -13,7 +13,7 @@
             </thead>
             <tbody>
                 <template v-for="person in people">
-                    <tr :class="isEdit(person.id) ? 'd-none' : ''">
+                    <tr :class="isEdit(person.id) ? 'd-none' : ''" v-if="person.id % 2 === 1">
                         <th scope="row">{{ person.id }}</th>
                         <td>{{ person.name }}</td>
                         <td>{{ person.age }}</td>
@@ -29,6 +29,8 @@
                         <td><a href="#" class="btn btn-success" @click.prevent="updatePerson(person.id)">Update</a></td>
                     </tr>
                 </template>
+                <button class="btn btn-success" v-on:click=ascSort()>ASC sort</button>
+                <button class="btn btn-success" v-on:click=descSort()>DESC sort</button>
             </tbody>
         </table>
     </div>
@@ -53,6 +55,26 @@ export default {
     },
 
     methods: {
+        ascSort: function(){
+            function compare(first, second) {
+                if (first.id < second.id)
+                    return -1;
+                if (first.id > second.id)
+                    return 1;
+                return 0;
+            }
+            return this.people.sort(compare);
+        },
+        descSort: function(){
+            function compare(first, second) {
+                if (first.id < second.id)
+                    return 1;
+                if (first.id > second.id)
+                    return -1;
+                return 0;
+            }
+            return this.people.sort(compare);
+        },
         getPeople() {
             axios.get('/api/people')
                 .then(res =>{
@@ -85,7 +107,7 @@ export default {
         isEdit(id) {
             return this.editPersonId === id
         }
-    }
+    },
 }
 </script>
 
