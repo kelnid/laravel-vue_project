@@ -13,30 +13,17 @@
             </thead>
             <tbody>
                 <template v-for="person in people">
-                    <tr :class="isEdit(person.id) ? 'd-none' : ''" v-if="person.id % 2 === 1">
-                        <th scope="row">{{ person.id }}</th>
-                        <td>{{ person.name }}</td>
-                        <td>{{ person.age }}</td>
-                        <td>{{ person.job }}</td>
-                        <td><a href="#" class="btn btn-success" @click.prevent="changeEditPersonId(person.id,person.name,person.age,person.job)">Edit</a></td>
-                        <td><a href="#" class="btn btn-danger" @click.prevent="deletePerson(person.id)">Delete</a></td>
-                    </tr>
-                    <tr :class="isEdit(person.id) ? '' : 'd-none'">
-                        <th scope="row">{{ person.id }}</th>
-                        <td><input type="text" class="form-control" v-model="name"></td>
-                        <td><input type="number" class="form-control" v-model="age"></td>
-                        <td><input type="text" class="form-control" v-model="job"></td>
-                        <td><a href="#" class="btn btn-success" @click.prevent="updatePerson(person.id)">Update</a></td>
-                    </tr>
+                    <ShowComponent :person="person"></ShowComponent>
+                    <EditComponent :person="person" :ref="`edit_${person.id}`"></EditComponent>
                 </template>
-                <button class="btn btn-success" v-on:click=ascSort()>ASC sort</button>
-                <button class="btn btn-success" v-on:click=descSort()>DESC sort</button>
             </tbody>
         </table>
     </div>
 </template>
 
 <script>
+import EditComponent from "./EditComponent";
+import ShowComponent from "./ShowComponent";
 export default {
     name: "IndexComponent",
 
@@ -55,26 +42,6 @@ export default {
     },
 
     methods: {
-        ascSort: function(){
-            function compare(first, second) {
-                if (first.id < second.id)
-                    return -1;
-                if (first.id > second.id)
-                    return 1;
-                return 0;
-            }
-            return this.people.sort(compare);
-        },
-        descSort: function(){
-            function compare(first, second) {
-                if (first.id < second.id)
-                    return 1;
-                if (first.id > second.id)
-                    return -1;
-                return 0;
-            }
-            return this.people.sort(compare);
-        },
         getPeople() {
             axios.get('/api/people')
                 .then(res =>{
@@ -99,15 +66,20 @@ export default {
 
         changeEditPersonId(id, name, age, job) {
             this.editPersonId = id;
-            this.name = name;
-            this.age = age;
-            this.job = job;
+            let editName = `edit_${id}`
+            this.$refs[editName][0].name = name
+            this.$refs[editName][0].age = age
+            this.$refs[editName][0].job = job
         },
 
         isEdit(id) {
             return this.editPersonId === id
-        }
+        },
     },
+    components: {
+        EditComponent,
+        ShowComponent,
+    }
 }
 </script>
 
